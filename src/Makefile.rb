@@ -53,6 +53,30 @@ if (not(args.any?) or args.keep_if{|x| not(actions.include?(x))}.any?) then
   exit(0)
 end
 
+# Borra todos los archivos generados por compile y compile_c
+def clean
+  puts "Borramos los archivos *.o"
+
+  command = "rm #{(@objs + [@main]).join(" ")}"
+  puts "\t" + command
+  system(command)
+
+  puts "Borramos el ejecutable main"
+  command = "rm #{@main[0..-3]}"
+  puts "\t" + command
+  system(command)
+
+  puts "Borramos todos los archivos .so"
+
+  command = "rm lib/*.so"
+  puts "\t" + command
+  system(command)
+
+  command = "rm -R lib"
+  puts "\t" + command
+  system(command)
+end
+
 # Compila todo en el ejecutable ./main de tal forma que tu puedas probar
 # funcionalidades exclusivas de C antes de pasar a los tests.
 def compile_c
@@ -106,27 +130,6 @@ def test
   require File.expand_path(File.join(File.dirname(__FILE__), "tests/tests"))
   Test.run
 end
-
-# Borra todos los archivos generados por compile y compile_c
-def clean
-  puts "Borramos los archivos *.o"
-  
-  command = "rm #{(@objs + [@main]).join(" ")}"
-  puts "\t" + command
-  system(command)
-
-  puts "Borramos el ejecutable main"
-  command = "rm #{@main[0..-3]}"
-  puts "\t" + command
-  system(command)
-
-  puts "Borramos todos los archivos .so"
-  
-  command = "rm lib/*.so"
-  puts "\t" + command
-  system(command)
-end
-
 
 #
 # Ejecutan todos los comandos que se le enviaron

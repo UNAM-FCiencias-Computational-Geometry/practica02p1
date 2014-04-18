@@ -214,3 +214,13 @@ void* pick_front(struct double_linked_list* list)
 	else
 		return list->head->element;
 }
+
+struct half_edge* cast_half_edge(void* half_edge)
+{
+        return (struct half_edge*)half_edge;
+}
+
+struct point* cast_point(void* point)
+{
+        return (struct point*)point;
+}
