@@ -34,9 +34,9 @@ int rb_great_than(coordinate coordinate, struct point* a, struct point* b)
 int rb_less_than(coordinate coordinate, struct point* a, struct point* b)
 {
 	if (coordinate == X)
-		return (a->x < b->x);
+		return (a->x < b->x || (a->x == b->x && a->y < b->y));
 	else
-		return (a->y < b->y);
+		return (a->y < b->y || (a->y == b->y && a->x < b->x));
 }
 
 
@@ -521,3 +521,43 @@ struct point* rb_max(struct rb_tree* tree)
 	else
 		return NULL;
 }
+
+
+
+//Inicio de codigo extra
+
+
+struct rb_node* getNext(struct rb_node* node){
+	struct rb_node* temp;
+	temp=node;
+	if(temp->right != &sentinel){
+		temp=temp->right;
+		while(temp->left!=&sentinel){
+			temp = temp->left;
+		}
+		return temp;
+	}
+	if(temp->parent!=&sentinel){
+		if (temp->parent->point->x > temp->point->x)
+			return temp->parent;
+	}
+	return NULL;
+}
+
+
+struct rb_node* getPrev(struct rb_node* node){
+	struct rb_node* temp=node;
+	if(temp->left != &sentinel){
+		temp=temp->left;
+		while(temp->right != &sentinel){
+			temp = temp->right;
+		}
+		return temp;
+	}
+	if(temp->parent != &sentinel){
+		if (temp->parent->point->x < temp->point->x)
+			return temp->parent;
+	}
+	return NULL;
+}
+
