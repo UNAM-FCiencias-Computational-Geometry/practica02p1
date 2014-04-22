@@ -47,11 +47,10 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,
 	struct point *prev_point, *next_point, *intersect_point;
 	rb_insert(state_tree, point);
 	node= rb_node_search(state_tree, point);
-	prev= getPrev(node);
-	next= getNext(node);
-	printf("AHHHHHHHHHHHHHHHHHHH!!!\n");
+	printf("El punto actual del estado es: (%lf,%lf)\n",point->x,point->y);
 	
-	if(prev!=NULL){
+	prev= getPrev(Y,node);
+	if(prev != NULL){
 		prev_point=prev->point;
 		prev_edge=prev_point->half_edge;
 		intersect_point= he_intersection(prev_edge,edge);
@@ -61,8 +60,28 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,
 			
 			printf("Intersection found: (%lf,lf)\n",intersect_point->x,intersect_point->y);
 			rb_delete(state_tree,prev_point);
-		}
+		}else
+			printf("NO hay interseccuion con el anterior\n");
 	}
+	
+	
+	next= getNext(Y,node);
+	if(next!=NULL){
+		next_point=next->point;
+		next_edge=next_point->half_edge;
+		intersect_point= he_intersection(next_edge,edge);
+		if (intersect_point != NULL){
+			rb_insert(state_tree,intersect_point);
+			rb_insert(state_tree,intersect_point);
+			
+			printf("Intersection found: (%lf,lf)\n",intersect_point->x,intersect_point->y);
+			rb_delete(state_tree,next_point);
+		}else
+			printf("NO hay interseccion con el siguiente\n");
+	}
+	printf("AHHHHHHHHHHHHHHHHHHH!!!\n");
+	
+	
 	
 	if(next!=NULL){
 		next_point=next->point;
@@ -74,21 +93,20 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,
 			
 			printf("Intersection found: (%lf,lf)\n",intersect_point->x,intersect_point->y);
 			rb_delete(state_tree,next_point);
-		}
+		}else
+			printf("NO hay interseccion con el siguiente\n");
 	}
 	
 	
 }
 
 struct rb_tree* sweep(struct rb_tree* stops){
-	struct rb_tree* state_tree = init_rb_tree(X);
+	struct rb_tree* state_tree = init_rb_tree(Y);
 	struct rb_tree* intersections = init_rb_tree(X);
 	
-	struct rb_node* temp;
 	struct point* current;
 	while(!empty_rb_tree(stops)){
-		temp=rb_min_node(stops);
-		current=temp->point;
+		current=rb_min(stops);
 		update_intersections(state_tree,current,intersections);
 		
 		rb_delete(stops,current);
