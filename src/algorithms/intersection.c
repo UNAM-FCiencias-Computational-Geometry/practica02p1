@@ -27,6 +27,7 @@ struct double_linked_list* find_intersections(struct double_linked_list*
 			}
 		}
 		tmp1 = tmp1->right;
+		tmp2 = tmp1;
 	}
 	return intersections;
 }
