@@ -48,6 +48,7 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,
 	rb_insert(state_tree, point);
 	node= rb_node_search(state_tree, point);
 	printf("El punto actual del estado es: (%lf,%lf)\n",point->x,point->y);
+	edge= point->half_edge;
 	
 	prev= getPrev(Y,node);
 	if(prev != NULL){
@@ -55,18 +56,20 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,
 		prev_edge=prev_point->half_edge;
 		intersect_point= he_intersection(prev_edge,edge);
 		if (intersect_point!=NULL){
+			
 			rb_insert(state_tree,intersect_point);
 			rb_insert(state_tree,intersections);
 			
-			printf("Intersection found: (%lf,lf)\n",intersect_point->x,intersect_point->y);
+			printf("Intersection found: (%lf,%lf)\n",intersect_point->x,intersect_point->y);
 			rb_delete(state_tree,prev_point);
-		}else
-			printf("NO hay interseccuion con el anterior\n");
+		}
+		
 	}
-	
+	intersect_point=NULL;
+	printf("NO hay interseccuion con el anterior\n");
 	
 	next= getNext(Y,node);
-	if(next!=NULL){
+	if(next != NULL){
 		next_point=next->point;
 		next_edge=next_point->half_edge;
 		intersect_point= he_intersection(next_edge,edge);
@@ -74,12 +77,12 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,
 			rb_insert(state_tree,intersect_point);
 			rb_insert(state_tree,intersect_point);
 			
-			printf("Intersection found: (%lf,lf)\n",intersect_point->x,intersect_point->y);
+			printf("Intersection found: (%lf,%lf)\n",intersect_point->x,intersect_point->y);
 			rb_delete(state_tree,next_point);
 		}else
 			printf("NO hay interseccion con el siguiente\n");
 	}
-	printf("AHHHHHHHHHHHHHHHHHHH!!!\n");
+	
 	
 	
 	
@@ -96,7 +99,7 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,
 		}else
 			printf("NO hay interseccion con el siguiente\n");
 	}
-	
+	printf("\n");
 	
 }
 
@@ -139,7 +142,7 @@ struct double_linked_list* find_intersections(struct double_linked_list*
 					
 					intersections=sweep(sweep_line);
 					//Prueba de linea
-					
+					 printf("Ya se hizo el barrido de linea\n");
 					struct point *equis;
 					struct rb_node *nodo;
 					while(! empty_rb_tree(intersections)){
@@ -160,13 +163,11 @@ struct double_linked_list* find_intersections(struct double_linked_list*
 		return NULL;
 		
 		//Código para probar
-		
-		
-/*
+	/*	
 	if(half_edges!=NULL){
 		if(!empty_list(half_edges)){
 			struct rb_tree *prueba = init_rb_tree(X);
-			struct point *actual = init_point(0,1);
+			struct point *actual = init_point(0,2);
 			rb_insert(prueba,actual);
 			actual= init_point(2,0);
 			rb_insert(prueba,actual);
@@ -178,36 +179,25 @@ struct double_linked_list* find_intersections(struct double_linked_list*
 			rb_insert(prueba,actual);
 			actual= init_point(2,3);
 			rb_insert(prueba,actual);
+			actual= init_point(0,1);
+			rb_insert(prueba,actual);
 			struct point *equis,*prev,*next;
 			struct rb_node *nodo,*anterior,*siguiente;
 			
-			while(! empty_rb_tree(prueba)){
-				nodo=rb_min_node(prueba);
+			while(!empty_rb_tree(prueba)){
+				nodo=rb_max_node(prueba);
 				equis=nodo->point;
-				printf("El nodo actual es: (%lf,%lf)\n", equis->x, equis->y);
+				printf("El punto actual es: (%lf,%lf)\n", equis->x, equis->y);
 				
 				printf("Por conseguir el anterior\n");
-				anterior= getPrev(nodo);
-				
-				if(anterior!=NULL){
-					prev=anterior->point;
-					printf ("El nodo anterior es: (%lf,%lf)\n", prev->x, prev->y);
-				}else
-					printf("El nodo anterior es nulo\n");
-				
+				anterior= getPrev(X,nodo);
 				
 				printf("Por conseguir el siguiente\n");
-				siguiente= getNext(nodo);
-				if(siguiente!=NULL){
-					next=siguiente->point;
-					printf ("El nodo siguiente es: (%lf,%lf)\n", next->x, next->y);
-				}else
-					printf("El nodo siguiente es nulo\n");
+				siguiente= getNext(X,nodo);
 				
 				rb_delete(prueba,equis);
-				rb_delete(prueba,prev);
-				rb_delete(prueba,next);
 				printf("\n");
+				anterior=siguiente=NULL;
 			}
 			
 			destroy_rb_tree(prueba);
@@ -216,9 +206,9 @@ struct double_linked_list* find_intersections(struct double_linked_list*
 		return init_double_linked_list(POINT);
 	}
 	return NULL;
-	
-	//Fin código para probar
 	*/
+	//Fin código para probar
+	
 }
 
 

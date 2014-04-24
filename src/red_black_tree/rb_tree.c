@@ -528,42 +528,70 @@ struct point* rb_max(struct rb_tree* tree)
 
 
 struct rb_node* getNext(coordinate coordinate, struct rb_node* node){
-	struct rb_node* temp;
-	temp=node;
+	struct rb_node* temp=node;
+	
+	//Caso en el que tiene hijo derecho
 	if(temp->right != &sentinel){
 		temp=temp->right;
 		while(temp->left!=&sentinel){
 			temp = temp->left;
 		}
-		printf("El punto siguiente es: (%lf,%lf)\n",temp->point->x,temp->point->y);
+		printf("El nodo siguiente es: (%lf,%lf)\n",temp->point->x,temp->point->y);
 		return temp;
 	}
 	
+	//No tiene hijo derecho
+	//Si tiene padre
 	if(temp->parent!=&sentinel){
-		if (!rb_less_than(coordinate, temp->parent->point, temp->point)){
-			printf("El punto siguiente es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
+		//Si es hijo izquierdo
+		if(temp==temp->parent->left){
+			printf("El nodo siguiente es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
 			return temp->parent;
+		}else{
+			//Si es hijo derecho
+			while(temp->parent != &sentinel && temp==temp->parent->right){
+				temp=temp->parent;
+			}
+			if(temp->parent != &sentinel){
+				printf("El nodo siguiente es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
+				return temp->parent;
+			}
 		}
 	}
+	
+	//Si no tiene padre
+	printf("El nodo siguiente es nulo\n");
 	return NULL;
 }
 
 
 struct rb_node* getPrev(coordinate coordinate, struct rb_node* node){
 	struct rb_node* temp=node;
+	
 	if(temp->left != &sentinel){
 		temp=temp->left;
 		while(temp->right != &sentinel){
 			temp = temp->right;
 		}
-		printf("El punto anterior es: (%lf,%lf)\n",temp->point->x,temp->point->y);
+		printf("El nodo anterior es: (%lf,%lf)\n",temp->point->x,temp->point->y);
 		return temp;
 	}
-	if(temp->parent != &sentinel){
-		if (!rb_great_than(coordinate, temp->parent->point, temp->point))
-			printf("El punto anterior es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
+	
+	if(temp->parent!=&sentinel){
+		if(temp==temp->parent->right){
+			printf("El nodo anterior es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
 			return temp->parent;
+		}else{
+			while(temp->parent != &sentinel && temp==temp->parent->left){
+				temp=temp->parent;
+			}
+			if(temp->parent != &sentinel){
+				printf("El nodo anterior es: (%lf,%lf)\n",temp->parent->point->x,temp->parent->point->y);
+				return temp;
+			}
+		}
 	}
+	printf("El nodo anterior es nulo\n");
 	return NULL;
 }
 
