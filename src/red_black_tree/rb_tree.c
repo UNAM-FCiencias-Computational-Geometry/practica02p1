@@ -527,7 +527,7 @@ struct point* rb_max(struct rb_tree* tree)
 //Inicio de codigo extra
 
 
-struct rb_node* getNext(coordinate coordinate, struct rb_node* node){
+struct rb_node* getNext(struct rb_node* node){
 	struct rb_node* temp=node;
 	
 	//Caso en el que tiene hijo derecho
@@ -565,7 +565,7 @@ struct rb_node* getNext(coordinate coordinate, struct rb_node* node){
 }
 
 
-struct rb_node* getPrev(coordinate coordinate, struct rb_node* node){
+struct rb_node* getPrev(struct rb_node* node){
 	struct rb_node* temp=node;
 	
 	if(temp->left != &sentinel){

@@ -47,18 +47,18 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,
 	struct point *prev_point, *next_point, *intersect_point;
 	rb_insert(state_tree, point);
 	node= rb_node_search(state_tree, point);
-	printf("El punto actual del estado es: (%lf,%lf)\n",point->x,point->y);
-	edge= point->half_edge;
+	printf("El punto actual del estado es: (%lf,%lf)\n",node->point->x,node->point->y);
+	edge= node->point->half_edge;
 	
-	prev= getPrev(Y,node);
+	prev= getPrev(node);
 	if(prev != NULL){
 		prev_point=prev->point;
 		prev_edge=prev_point->half_edge;
 		intersect_point= he_intersection(prev_edge,edge);
 		if (intersect_point!=NULL){
 			
-			rb_insert(state_tree,intersect_point);
-			rb_insert(state_tree,intersections);
+			rb_insert(state_tree, intersect_point);
+			rb_insert(intersections, intersect_point);
 			
 			printf("Intersection found: (%lf,%lf)\n",intersect_point->x,intersect_point->y);
 			rb_delete(state_tree,prev_point);
@@ -66,39 +66,22 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,
 		
 	}
 	intersect_point=NULL;
-	printf("NO hay interseccuion con el anterior\n");
 	
-	next= getNext(Y,node);
+	
+	next= getNext(node);
 	if(next != NULL){
 		next_point=next->point;
 		next_edge=next_point->half_edge;
 		intersect_point= he_intersection(next_edge,edge);
 		if (intersect_point != NULL){
-			rb_insert(state_tree,intersect_point);
-			rb_insert(state_tree,intersect_point);
+			rb_insert(state_tree, intersect_point);
+			rb_insert(intersections, intersect_point);
 			
 			printf("Intersection found: (%lf,%lf)\n",intersect_point->x,intersect_point->y);
 			rb_delete(state_tree,next_point);
-		}else
-			printf("NO hay interseccion con el siguiente\n");
+		}
 	}
 	
-	
-	
-	
-	if(next!=NULL){
-		next_point=next->point;
-		next_edge=next_point->half_edge;
-		intersect_point= he_intersection(next_edge,edge);
-		if (intersect_point!=NULL){
-			rb_insert(state_tree,intersect_point);
-			rb_insert(state_tree,intersections);
-			
-			printf("Intersection found: (%lf,lf)\n",intersect_point->x,intersect_point->y);
-			rb_delete(state_tree,next_point);
-		}else
-			printf("NO hay interseccion con el siguiente\n");
-	}
 	printf("\n");
 	
 }
