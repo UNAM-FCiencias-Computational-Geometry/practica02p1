@@ -39,7 +39,8 @@ int is_first(struct point* p){
 }
 
 
-void update_intersections(struct rb_tree* state_tree, struct point* point,struct rb_tree* intersections ){
+void update_intersections(struct rb_tree* state_tree, struct point* point,struct rb_tree* intersections,
+struct rb_tree* stops ){
 	struct rb_node *node, *prev, *next;
 	struct half_edge *edge, *prev_edge,*next_edge;
 	struct point *prev_point, *next_point, *intersect_point;
@@ -57,6 +58,7 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,struct
 			
 			rb_insert(state_tree, intersect_point);
 			rb_insert(intersections, intersect_point);
+			rb_insert(stops, intersect_point);
 			
 			printf("Intersection found: (%lf,%lf)\n",intersect_point->x,intersect_point->y);
 			rb_delete(state_tree,prev_point);
@@ -74,7 +76,7 @@ void update_intersections(struct rb_tree* state_tree, struct point* point,struct
 		if (intersect_point != NULL){
 			rb_insert(state_tree, intersect_point);
 			rb_insert(intersections, intersect_point);
-			
+			rb_insert(stops, intersect_point);			
 			printf("Intersection found: (%lf,%lf)\n",intersect_point->x,intersect_point->y);
 			rb_delete(state_tree,next_point);
 		}
@@ -91,7 +93,7 @@ struct rb_tree* sweep(struct rb_tree* stops){
 	struct point* current;
 	while(!empty_rb_tree(stops)){
 		current=rb_min(stops);
-		update_intersections(state_tree,current,intersections);
+		update_intersections(state_tree,current,intersections,stops);
 		
 		rb_delete(stops,current);
 		
@@ -125,6 +127,7 @@ struct double_linked_list* find_intersections(struct double_linked_list* half_ed
 					 printf("Ya se hizo el barrido de linea\n");
 					struct point *equis;
 					struct rb_node *nodo;
+					
 					while(! empty_rb_tree(intersections)){
 						nodo=rb_min_node(intersections);
 						equis=nodo->point;
