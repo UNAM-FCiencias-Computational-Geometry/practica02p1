@@ -12,8 +12,7 @@
 #include <stdlib.h>
 
 
-struct double_linked_list* build_required_stops(struct rb_tree* stops,
-								struct double_linked_list* edges){
+struct double_linked_list* build_required_stops(struct rb_tree* stops, struct double_linked_list* edges){
 	struct half_edge* tmp_edge;
 	struct point *edge_first, *edge_last;
 	
@@ -40,8 +39,7 @@ int is_first(struct point* p){
 }
 
 
-void update_intersections(struct rb_tree* state_tree, struct point* point,
-										struct rb_tree* intersections ){
+void update_intersections(struct rb_tree* state_tree, struct point* point,struct rb_tree* intersections ){
 	struct rb_node *node, *prev, *next;
 	struct half_edge *edge, *prev_edge,*next_edge;
 	struct point *prev_point, *next_point, *intersect_point;
@@ -110,8 +108,7 @@ struct rb_tree* sweep(struct rb_tree* stops){
 
 
 
-struct double_linked_list* find_intersections(struct double_linked_list*
-											  half_edges)
+struct double_linked_list* find_intersections(struct double_linked_list* half_edges)
 {
 	//Código bueno
 		if(half_edges != NULL){
