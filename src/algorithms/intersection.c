@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 
-struct double_linked_list* build_required_stops(struct rb_tree* stops, struct double_linked_list* edges){
+void build_required_stops(struct rb_tree* stops, struct double_linked_list* edges){
 	struct half_edge* tmp_edge;
 	struct point *edge_first, *edge_last;
 	
@@ -33,9 +33,54 @@ struct double_linked_list* build_required_stops(struct rb_tree* stops, struct do
 	}
 }
 
-int is_first(struct point* p){
-	struct half_edge* arista=p->half_edge;
-	return arista->first== p;
+int is_ending_point(struct point* p){
+	return p->intersection == NULL;
+}
+
+void addIntersections(struct rb_tree *state_tree, struct point* current_point, 
+struct rb_tree* intersections, struct rb_tree* stops, struct rb_node* intersection){
+	struct point* checking_point,*intersect_point_1,  *intersect_point_2;
+	struct half_edge* edge,*checking_edge, *checking_intersection;
+	
+	intersect_point_1=NULL;
+	intersect_point_2=NULL;
+	
+	edge= current_point->half_edge;
+	
+	checking_point= intersection->point;
+	checking_edge= checking_point->half_edge;
+	if(edge != checking_edge)
+		intersect_point_1= he_intersection(checking_edge,edge);
+	
+	checking_intersection= checking_point->intersection;
+		
+	if (intersect_point_1 != NULL && intersect_point_1 != current_point && intersect_point_1 != checking_point){
+		rb_insert(intersections, intersect_point_1);
+		rb_insert(stops, intersect_point_1);
+		
+		printf("Intersection found: (%lf,%lf)\n",intersect_point_1->x,intersect_point_1->y);
+		
+	}
+	if(edge != checking_intersection)
+		checking_intersection= checking_point->intersection;
+
+	if(checking_intersection != NULL){
+		intersect_point_2= he_intersection(checking_intersection,edge);
+		if (intersect_point_2 != NULL && intersect_point_2 != current_point && intersect_point_2 != checking_point){
+			rb_insert(intersections, intersect_point_2);
+			rb_insert(stops, intersect_point_2);
+				
+			printf("Intersection found: (%lf,%lf)\n",intersect_point_2->x,intersect_point_2->y);
+				
+		}
+	}
+	
+	if(intersect_point_2 != NULL || intersect_point_1 != NULL){
+		rb_delete(state_tree,checking_point);
+		rb_delete(state_tree, current_point);
+		rb_delete(stops,checking_point);
+		rb_delete(stops, current_point);
+	}
 }
 
 
@@ -44,43 +89,19 @@ struct rb_tree* stops ){
 	struct rb_node *node, *prev, *next;
 	struct half_edge *edge, *prev_edge,*next_edge;
 	struct point *prev_point, *next_point, *intersect_point;
+	
 	rb_insert(state_tree, point);
 	node= rb_node_search(state_tree, point);
 	printf("El punto actual del estado es: (%lf,%lf)\n",node->point->x,node->point->y);
-	edge= node->point->half_edge;
 	
 	prev= getPrev(node);
-	if(prev != NULL){
-		prev_point=prev->point;
-		prev_edge=prev_point->half_edge;
-		intersect_point= he_intersection(prev_edge,edge);
-		if (intersect_point!=NULL){
-			
-			rb_insert(state_tree, intersect_point);
-			rb_insert(intersections, intersect_point);
-			rb_insert(stops, intersect_point);
-			
-			printf("Intersection found: (%lf,%lf)\n",intersect_point->x,intersect_point->y);
-			rb_delete(state_tree,prev_point);
-		}
-		
-	}
-	intersect_point=NULL;
+	if (prev != NULL)
+		addIntersections(state_tree, point, intersections, stops, prev);
 	
 	
 	next= getNext(node);
-	if(next != NULL){
-		next_point=next->point;
-		next_edge=next_point->half_edge;
-		intersect_point= he_intersection(next_edge,edge);
-		if (intersect_point != NULL){
-			rb_insert(state_tree, intersect_point);
-			rb_insert(intersections, intersect_point);
-			rb_insert(stops, intersect_point);			
-			printf("Intersection found: (%lf,%lf)\n",intersect_point->x,intersect_point->y);
-			rb_delete(state_tree,next_point);
-		}
-	}
+	if (next != NULL)
+		addIntersections(state_tree, point, intersections, stops, next);
 	
 	printf("\n");
 	
@@ -113,40 +134,45 @@ struct rb_tree* sweep(struct rb_tree* stops){
 struct double_linked_list* find_intersections(struct double_linked_list* half_edges)
 {
 	//Código bueno
+	
 		if(half_edges != NULL){
-			struct double_linked_list* edges= create_copy_list(half_edges);
-			struct double_linked_list* intersections= init_double_linked_list(POINT);
+			struct double_linked_list* edges= create_copy_list(half_edges),* intersections;
+			struct rb_tree* intersecciones;
 			
 				if(!empty_list(edges)){ //build sweep line, edge by edge
 					struct rb_tree* sweep_line= init_rb_tree(X);
 					build_required_stops(sweep_line, edges);
 					printf("\n\n\n\n\n\n");
 					
-					intersections=sweep(sweep_line);
+					intersecciones=sweep(sweep_line);
+					//sweep(sweep_line);
+					
 					//Prueba de linea
-					 printf("Ya se hizo el barrido de linea\n");
+					printf("Ya se hizo el barrido de linea\n");
 					struct point *equis;
 					struct rb_node *nodo;
 					
-					while(! empty_rb_tree(intersections)){
-						nodo=rb_min_node(intersections);
+					while(! empty_rb_tree(intersecciones)){
+						nodo=rb_min_node(intersecciones);
 						equis=nodo->point;
 						printf("La intersección actual es: (%lf,%lf)\n", equis->x, equis->y);
-						/*if(is_first(equis)){
-							printf("Es un punto inicial de una arista\n");
-						}else
-							printf("Es un punto final de una arista\n");
-						*/
-						rb_delete(intersections,equis);
+
+						rb_delete(intersecciones,equis);
 					}
 					
-				}
+				destroy_rb_tree(intersecciones);
+				printf("Ya acabó\n");
+				intersections=init_double_linked_list(POINT);
 				return intersections;
+			}
+			intersections= init_double_linked_list(POINT);
+			return intersections;
 		}
 		return NULL;
 		
+		
 		//Código para probar
-	/*	
+	/*
 	if(half_edges!=NULL){
 		if(!empty_list(half_edges)){
 			struct rb_tree *prueba = init_rb_tree(X);
@@ -168,15 +194,15 @@ struct double_linked_list* find_intersections(struct double_linked_list* half_ed
 			struct rb_node *nodo,*anterior,*siguiente;
 			
 			while(!empty_rb_tree(prueba)){
-				nodo=rb_max_node(prueba);
+				nodo=rb_min_node(prueba);
 				equis=nodo->point;
 				printf("El punto actual es: (%lf,%lf)\n", equis->x, equis->y);
 				
 				printf("Por conseguir el anterior\n");
-				anterior= getPrev(X,nodo);
+				anterior= getPrev(nodo);
 				
 				printf("Por conseguir el siguiente\n");
-				siguiente= getNext(X,nodo);
+				siguiente= getNext(nodo);
 				
 				rb_delete(prueba,equis);
 				printf("\n");
@@ -193,6 +219,7 @@ struct double_linked_list* find_intersections(struct double_linked_list* half_ed
 	//Fin código para probar
 	
 }
+
 
 
 
