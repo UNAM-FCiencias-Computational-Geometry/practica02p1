@@ -34,11 +34,19 @@ void build_required_stops(struct rb_tree* stops, struct double_linked_list* edge
 }
 
 int is_ending_point(struct point* p){
-	return p->intersection == NULL;
+	
+	struct half_edge* egde = p->half_edge;
+	struct point* p1 = egde->last;
+	double x1 = p->x;
+	double x2 = p1->x;
+	double y1 = p->y;
+	double y2 = p1->y;
+	return (x2 == x1) && (y2==y1);
 }
 
 void addIntersections(struct rb_tree *state_tree, struct point* current_point, 
 struct rb_tree* intersections, struct rb_tree* stops, struct rb_node* intersection){
+	
 	struct point* checking_point,*intersect_point_1,  *intersect_point_2;
 	struct half_edge* edge,*checking_edge, *checking_intersection;
 	
@@ -49,10 +57,30 @@ struct rb_tree* intersections, struct rb_tree* stops, struct rb_node* intersecti
 	
 	checking_point= intersection->point;
 	checking_edge= checking_point->half_edge;
+	
+	
+	//if(is_ending_point(current_point)){
+	
+		struct point* aux = edge->first;
+		rb_delete(state_tree,aux);
+		if(checking_edge == edge){
+			//checking_point ->half_edge = checking_point->intersection;
+			if(checking_point->half_edge == NULL){
+				rb_delete(state_tree,checking_point);
+				}
+			}
+		
+		//}
+		
+		if(checking_point->intersection == edge){
+			checking_point ->intersection = NULL;
+			
+		
+		}
 	if(edge != checking_edge)
 		intersect_point_1= he_intersection(checking_edge,edge);
 	
-	checking_intersection= checking_point->intersection;
+	//checking_intersection= checking_point->intersection;
 		
 	if (intersect_point_1 != NULL && intersect_point_1 != current_point && intersect_point_1 != checking_point){
 		rb_insert(intersections, intersect_point_1);
@@ -61,10 +89,11 @@ struct rb_tree* intersections, struct rb_tree* stops, struct rb_node* intersecti
 		printf("Intersection found: (%lf,%lf)\n",intersect_point_1->x,intersect_point_1->y);
 		
 	}
-	if(edge != checking_intersection)
-		checking_intersection= checking_point->intersection;
+	//if(edge != checking_intersection)
+		//checking_intersection= checking_point->intersection;
 
-	if(checking_intersection != NULL){
+	if(checking_point ->intersection != NULL && edge != checking_point->intersection ){
+		checking_intersection= checking_point->intersection;
 		intersect_point_2= he_intersection(checking_intersection,edge);
 		if (intersect_point_2 != NULL && intersect_point_2 != current_point && intersect_point_2 != checking_point){
 			rb_insert(intersections, intersect_point_2);
@@ -74,7 +103,7 @@ struct rb_tree* intersections, struct rb_tree* stops, struct rb_node* intersecti
 				
 		}
 	}
-	
+	//intersect_point_2 = NULL;
 	if(intersect_point_2 != NULL || intersect_point_1 != NULL){
 		rb_delete(state_tree,checking_point);
 		rb_delete(state_tree, current_point);
